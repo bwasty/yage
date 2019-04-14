@@ -1,10 +1,9 @@
 use glutin::GlContext;
 
 use yage::gl::{
-    GL, GlFunctions,
-    glenum,
-    check_error, 
-    objects::{Program, Buffer, VertexArray}
+    check_error, glenum,
+    objects::{Buffer, Program, VertexArray},
+    GlFunctions, GL,
 };
 
 fn main() {
@@ -25,29 +24,29 @@ fn main() {
     let program = Program::from_source(&gl, VS_SRC, FS_SRC, &[]);
     program.use_program();
 
-    let vertex_buffer = Buffer::new(&gl, glenum::BufferKind::Array as _);
-    vertex_buffer.bind();
-    vertex_buffer.set_data(&VERTEX_DATA, glenum::DrawMode::Static as _);
-
     let vao = VertexArray::new(&gl);
     vao.bind();
 
-    vertex_buffer.attrib_enable(
-        0, 
-        2, 
-        gl::FLOAT, 
-        false, 
-        5 * std::mem::size_of::<f32>() as gl::types::GLsizei, 
-    0);
-
-    vertex_buffer.attrib_enable(
-        1,
-        3,
-        gl::FLOAT,
-        false,
-        5 * std::mem::size_of::<f32>() as gl::types::GLsizei,
-        2 * std::mem::size_of::<f32>() as i32,
-    );
+    let vertex_buffer = Buffer::new(&gl, glenum::BufferKind::Array as _);
+    vertex_buffer
+        .update()
+        .set_data(&VERTEX_DATA, glenum::DrawMode::Static as _)
+        .attrib_enable(
+            0,
+            2,
+            gl::FLOAT,
+            false,
+            5 * std::mem::size_of::<f32>() as gl::types::GLsizei,
+            0,
+        )
+        .attrib_enable(
+            1,
+            3,
+            gl::FLOAT,
+            false,
+            5 * std::mem::size_of::<f32>() as gl::types::GLsizei,
+            2 * std::mem::size_of::<f32>() as i32,
+        );
 
     check_error!();
 
@@ -64,10 +63,10 @@ fn main() {
                     glutin::WindowEvent::Resized(logical_size) => {
                         let dpi_factor = gl_window.get_hidpi_factor();
                         gl_window.resize(logical_size.to_physical(dpi_factor));
-                    },
+                    }
                     _ => (),
                 },
-                _ => ()
+                _ => (),
             }
         });
 
@@ -79,7 +78,6 @@ fn main() {
         let _ = gl_window.swap_buffers();
     }
 }
-
 
 const VS_SRC: &str = "
 #version 330 core
