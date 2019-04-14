@@ -1,20 +1,22 @@
-use crate::{GL, GlFunctions};
+use std::rc::Rc;
+
+use crate::{GlFunctions, GL};
 
 /// Wrapper around an OpenGL vertex array.
-pub struct VertexArray<'a> {
-    gl: &'a GL,
+pub struct VertexArray {
+    gl: Rc<GL>,
     array_handle: <GL as GlFunctions>::GlVertexArray,
 }
 
-impl<'a> VertexArray<'a> {
+impl VertexArray {
     /// Creates a vertex array.
     ///
     /// # Parameters
     /// - `gl`: GL context
-    pub fn new(gl: &'a GL) -> Self {
+    pub fn new(gl: &Rc<GL>) -> Self {
         Self {
-            gl,
-            array_handle: gl.create_vertex_array()
+            gl: gl.clone(),
+            array_handle: gl.create_vertex_array(),
         }
     }
 
@@ -34,7 +36,7 @@ impl<'a> VertexArray<'a> {
     }
 }
 
-impl<'a> Drop for VertexArray<'a> {
+impl Drop for VertexArray {
     fn drop(&mut self) {
         self.gl.delete_vertex_array(&self.array_handle);
     }

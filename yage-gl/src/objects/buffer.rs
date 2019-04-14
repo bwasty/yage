@@ -1,22 +1,24 @@
+use std::rc::Rc;
+
 use crate::{GlFunctions, GL};
 
 /// Wrapper around an OpenGL array or element array buffer.
-pub struct Buffer<'a> {
-    gl: &'a GL,
+pub struct Buffer {
+    gl: Rc<GL>,
     /// Target for use in `glBindBuffer`
     target: u32,
     handle: <GL as GlFunctions>::GlBuffer,
 }
 
-impl<'a> Buffer<'a> {
+impl Buffer {
     /// Creates an empty buffer.
     ///
     /// # Parameters
     /// - `gl`: GL context
     /// - `target`: must be a valid glenum for `glBindBuffer`
-    pub fn new(gl: &'a GL, target: u32) -> Self {
+    pub fn new(gl: &Rc<GL>, target: u32) -> Self {
         Self {
-            gl,
+            gl: gl.clone(),
             target,
             handle: gl.create_buffer(),
         }
@@ -91,7 +93,7 @@ impl<'a> Buffer<'a> {
     }
 }
 
-impl<'a> Drop for Buffer<'a> {
+impl Drop for Buffer {
     fn drop(&mut self) {
         self.gl.delete_buffer(&self.handle);
     }
